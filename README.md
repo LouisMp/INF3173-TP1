@@ -39,7 +39,6 @@ Ce programme a été conçu et écrit dans le cadre du cours INF3173 session ét
 - Les fichiers `tools.h` et `tools.c` contenant le code source de mes fonctions;
 - Un fichier `README.md` ci-contre;
 - Un fichier nommé `makefile` supportant l'appel `make`;
-- Un fichier ``.gitignore``.;
 
    ## Références
 
