@@ -6,7 +6,7 @@ CFLAGS = -Wall -pedantic -ansi -std=c99 -lm -O1
 TARGET = monshell
 
 default: $(TARGET).c
-	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).c
+	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).c tools.c
 
 #phony cible qui ne sont pas des noms de fichier
 
