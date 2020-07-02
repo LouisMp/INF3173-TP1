@@ -13,8 +13,8 @@ int main(int argc, char *argv[], char **envp)
             fprintf(stderr, "Usage: %s <batchfile> can't open file\n", argv[0]);
             exit(EXIT_FAILURE);
         }
-        monshell_batchfile(fichier);
-
+        monshell_batchfile(&fichier);
+        fclose(fichier);
     } else if(argc==1) {
         monshell_cmdline();
     } else {
