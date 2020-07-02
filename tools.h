@@ -43,9 +43,9 @@ void monshell_batchfile(FILE *file);
 
 char *read_line();
 Arguments *parse_args(char *args);
-Redirections *handle_redirection(Arguments *redirections);
+void handle_redirection(Arguments *redirections, Redirections* r);
 
 int run(char **args, Redirections *r);
-int run_external(char **args);
+int run_external(char **args, Redirections *r);
 
-#endif // MONSHELL_H_INCLUDED
+#endif // TOOLS_H_INCLUDED

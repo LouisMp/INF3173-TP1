@@ -1,7 +1,7 @@
 all: monshell
 
-monshell: monshell.o 
-	gcc -o monshell monshell.o
+monshell:
+	gcc -o monshell monshell.c tools.c
 
-monshell.o: monshell.c
-	gcc -o monshell.o -c monshell.c tools.c
+clean:
+	rm -rf monshell
