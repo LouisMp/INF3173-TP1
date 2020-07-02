@@ -5,7 +5,7 @@ Implémentation en C d’un « shell » qui manipulera des simples commandes (cd
 
 Le programme `monshell` doit être lancé en ligne de commande avec les options suivantes :
 * ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `<batchfile>`  Fichier contenant un ensemble de lignes de commande pour le shell à traiter.;
-* ![#f03c05](https://placehold.it/15/f03c15/000000?text=+) `<None>`Le shell prends les commandandes directement par entrée standard;
+* ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `<None>`Le shell prends les commandandes directement par entrée standard;
    
 Ce programme a été conçu et écrit dans le cadre du cours INF3173 session été 2020 à l'Université du Quebec à Montréal.
 ## Auteur
@@ -17,7 +17,12 @@ Ce programme a été conçu et écrit dans le cadre du cours INF3173 session ét
    Le programme (monshell) doit prendre en charge les commandes internes suivantes :
    * ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) cd `<répertoire>` - changer le répertoire par défaut actuel à `<répertoire>`. 
    * ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
-   * ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
+   
+   On gère égalements les redirections suivantes : 
+   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `<`
+   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `>`
+   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `>>`
+   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `&`
    
    Voici quelques commandes à taper qu'on peut effectuer pour lancer le programme:
    + `$ ./monshell`
@@ -50,4 +55,5 @@ Ce programme a été conçu et écrit dans le cadre du cours INF3173 session ét
 
    ## Réflexions
    
+   On a du mal a trouvé une façon efficace de mettre en `pause` le programme
    
