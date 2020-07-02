@@ -15,8 +15,8 @@ Ce programme a été conçu et écrit dans le cadre du cours INF3173 session ét
    ## Fonctionnement
 
    Le programme (monshell) doit prendre en charge les commandes internes suivantes :
-   * ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) cd `<répertoire>` - changer le répertoire par défaut actuel à `<répertoire>`. 
-   * ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
+   * ![#009900](https://placehold.it/15/009900/000000?text=+) cd `<répertoire>` - changer le répertoire par défaut actuel à `<répertoire>`. 
+   * ![#009900](https://placehold.it/15/009900/000000?text=+) 
    
    On gère égalements les redirections suivantes : 
    * ![#0066CC](https://placehold.it/15/0066CC/000000?text=+) `<`
