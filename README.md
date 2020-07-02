@@ -5,9 +5,9 @@ Implémentation en C d’un « shell » qui manipulera des simples commandes (cd
 
 Le programme `monshell` doit être lancé en ligne de commande avec les options suivantes :
 * ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `<batchfile>`  Fichier contenant un ensemble de lignes de commande pour le shell à traiter.;
-* ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `<None>`Le shell prends les commandandes directement par entrée standard;
+* ![#f03c05](https://placehold.it/15/f03c15/000000?text=+) `<None>`Le shell prends les commandandes directement par entrée standard;
    
-Ce programme a été conçu et écrit dans le cadre du cours INF3135 session été 2019 à l'Université du Quebec à Montréal.
+Ce programme a été conçu et écrit dans le cadre du cours INF3173 session été 2020 à l'Université du Quebec à Montréal.
 ## Auteur
 
    par *_MPANDZO-OTIANKOUYA_* _Louis Junior_ *(MPAL82010003)*.
