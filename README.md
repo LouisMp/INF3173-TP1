@@ -11,6 +11,7 @@ Ce programme a été conçu et écrit dans le cadre du cours INF3173 session ét
 ## Auteur
 
    par *_MPANDZO-OTIANKOUYA_* _Louis Junior_ *(MPAL82010003)*.
+   par *_On_*_William_*(ONXW12069703)*.
 
    ## Fonctionnement
 
