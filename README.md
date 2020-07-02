@@ -19,10 +19,10 @@ Ce programme a été conçu et écrit dans le cadre du cours INF3173 session ét
    * ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) 
    
    On gère égalements les redirections suivantes : 
-   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `<`
-   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `>`
-   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `>>`
-   * ![#f7f702](https://placehold.it/15/#7f702/000000?text=+) `&`
+   * ![#f7f702](https://placehold.it/15/7f702/000000?text=+) `<`
+   * ![#f7f702](https://placehold.it/15/7f702/000000?text=+) `>`
+   * ![#f7f702](https://placehold.it/15/7f702/000000?text=+) `>>`
+   * ![#f7f702](https://placehold.it/15/7f702/000000?text=+) `&`
    
    Voici quelques commandes à taper qu'on peut effectuer pour lancer le programme:
    + `$ ./monshell`
