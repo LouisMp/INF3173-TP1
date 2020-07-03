@@ -8,16 +8,16 @@ int main(int argc, char **argv, char *envp[])
   char *ligneEntre;
   char **args;
   int status;
-  //int i;
+  int i;
   int ampers;
 
   FILE *inputFile = NULL;
-//  FILE *outputFile = NULL;
+  FILE *outputFile = NULL;
 
   if (argc == 2)
     inputFile = freopen(argv[1], "r", stdin);
 
-  /*
+  
 for(i = 0; argv[i] != NULL; i++){
 if(argv[i][0] == '<'){
 inputFile = freopen(argv[i+1], "r", stdin);
@@ -26,7 +26,7 @@ if (argv[i][0] == '>'){
 outputFile = freopen(argv[i+1],"w",stdout);   
 }
 }
-*/
+
 
   do
   {
@@ -49,12 +49,12 @@ outputFile = freopen(argv[i+1],"w",stdout);
   {
     fclose(inputFile);
   }
-/*
+
   if (outputFile)
   {
     fclose(outputFile);
   }
-*/
+
 
   return 0;
 }
