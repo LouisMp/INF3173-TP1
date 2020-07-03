@@ -48,7 +48,7 @@ int nb_commandes_internes();
 
 int internes_cd(char **args);
 
-int launch(char **args, int ampers);
+int commandes_externes(char **args, int ampers);
 
 int execute(char **args, int ampers);
 

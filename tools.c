@@ -31,9 +31,12 @@ int (*commandes_internes_function[]) (char **) = {
 };
 
 
+// le nombre de commandes internes
 int nb_commandes_internes() { return sizeof(commandes_internes) / sizeof(char *); }
 
 // Implementation des commandes internes
+
+// commandes internes changer le répertoire par défaut actuel à <répertoire>.
 int internes_cd(char **args)
 {
     if (args[1] == NULL)
@@ -53,11 +56,14 @@ int internes_cd(char **args)
     return 1;
 }
 
+// commandes internes clr - effacer l'écran.
 int internes_clr()
 {
     printf("\033[2J\033[1;1H");
     return 1;
 }
+
+// commandes internes dir <répertoire> - lister le contenu du répertoire <répertoire>.
 int internes_dir(char **args)
 {
     struct dirent *pDirent;
@@ -80,7 +86,7 @@ int internes_dir(char **args)
         printf("Cannot open directory '%s'\n", args[1]);
         return 1;
     }
-    // Process each entry.
+
     while ((pDirent = readdir(pDir)) != NULL)
     {
         printf("%s ", pDirent->d_name);
@@ -89,6 +95,7 @@ int internes_dir(char **args)
     return 1;
 }
 
+// commandes internes environ - lister tous les contenus d'environnement
 int internes_environ(char **args)
 {
     extern char **environ;
@@ -102,6 +109,7 @@ int internes_environ(char **args)
     return 1;
 }
 
+// commandes internes echo <comment> - afficher <comment> sur l'écran suivi d'une nouvelle ligne
 int internes_echo(char **args)
 {
     char **ptr = args;
@@ -115,6 +123,7 @@ int internes_echo(char **args)
     return 1;
 }
 
+// commandes internes help - afficher le manuel d'utilisation à l'aide du filtre « more ».
 int internes_help(char **args)
 {
     if (!args[1])
@@ -122,7 +131,7 @@ int internes_help(char **args)
         printf("help <commandes internes> - pour obtenir le man de la commande internes\n");
         printf("help sans  arguments - affiche le manuel complet\n");
         printf("\ncd <répertoire> - changer le répertoire par défaut actuel à <répertoire>.\n");
-        printf("\nEffacer l'ecran\n");
+        printf("\nclr - Effacer l'ecran\n");
         printf("\ndir <répertoire> - lister le contenu du répertoire <répertoire>.\n");
         printf("\nenviron - lister tous les contenus d'environnement.\n");
         printf("\necho <comment> - afficher <comment> sur l'écran suivi d'une nouvelle ligne\n"); 
@@ -167,6 +176,8 @@ return 1;
     }
     return 1;
 }
+
+// Commandes internes pause - interrompre le fonctionnement du shell jusqu'à ce que vous appuyiez sur «Entrer».
 int internes_pause()
 {
     char entree[60];
@@ -178,25 +189,28 @@ int internes_pause()
     } while (strncmp(entree, "\n", 1) != 0);
     return 1;
 }
+
+// Commandes internes quit - quitter le shell.
 int internes_quit()
 {
     return 0;
 }
-int launch(char **args, int ampers)
+
+// Execute les commandes externes et si & parent nattend pas le retour de lenfant
+int commandes_externes(char **args, int ampers)
 {
     if (args != NULL)
     {
         pid_t pid;
-        int status;
+        int resultat;
         pid = fork();
         if (pid == 0)
         {
-            // Child process
             if (execvp(args[0], args) == -1)
             {
                 perror("Error in fork()");
             }
-            exit(EXIT_FAILURE);
+            exit(1);
         }
         else if (pid < 0)
         {
@@ -210,14 +224,15 @@ int launch(char **args, int ampers)
             {
                 do
                 {
-                    waitpid(pid, &status, WUNTRACED);
-                } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+                    waitpid(pid, &resultat, 0);
+                } while (!WIFEXITED(resultat) && !WIFSIGNALED(resultat));
             }
         }
     }
     return 1;
 }
 
+// Fonction qui execute la ligne de commandes
 int execute(char **args, int ampers)
 {
     int i;
@@ -234,9 +249,11 @@ int execute(char **args, int ampers)
             return (*commandes_internes_function[i])(args);
         }
     }
-    // execute commande externe
-    return launch(args, ampers);
+    // Fonction non internes donc externes
+    return commandes_externes(args, ampers);
 }
+
+// Fonction qui li lentree de utilisateur
 char *read_line(void)
 {
     char *line = NULL;
@@ -245,17 +262,19 @@ char *read_line(void)
     {
         if (feof(stdin))
         {
-            exit(EXIT_SUCCESS); // We recieved an EOF
+            exit(0); // We recieved an EOF
         }
         else
         {
             perror("readline");
-            exit(EXIT_FAILURE);
+            exit(1);
         }
     }
     return line;
 }
-#define LSH_TOK_DELIM " \t\r\n\a"
+
+// Split lentree de lutilisateur en un array of pointers
+#define LSH_TOK_DELIM " \t\n"
 char **split_line(char *line)
 {
     int bufsize = 64, position = 0;
@@ -263,7 +282,7 @@ char **split_line(char *line)
     if (!tokens)
     {
         fprintf(stderr, "lsh: allocation error\n");
-        exit(EXIT_FAILURE);
+        exit(1);
     }
     char *token = strtok(line, LSH_TOK_DELIM);
     while (token /*!=NULL*/)
@@ -276,6 +295,7 @@ char **split_line(char *line)
     return tokens;
 }
 
+// Verifie si il y a & dans la commandes entree
 int check_ampersand(char **args)
 {
     int i;

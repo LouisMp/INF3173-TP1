@@ -4,7 +4,6 @@
 
 int main(int argc, char **argv, char *envp[])
 {
-  // Load config files, if any.
   //char cwd[100];
   char *ligneEntre;
   char **args;
@@ -13,7 +12,7 @@ int main(int argc, char **argv, char *envp[])
   int ampers;
 
   FILE *inputFile = NULL;
-  FILE *outputFile = NULL;
+//  FILE *outputFile = NULL;
 
   if (argc == 2)
     inputFile = freopen(argv[1], "r", stdin);
@@ -43,17 +42,19 @@ outputFile = freopen(argv[i+1],"w",stdout);
 
     free(ligneEntre);
     free(args);
+  
   } while (status);
 
   if (inputFile)
   {
     fclose(inputFile);
   }
+/*
   if (outputFile)
   {
     fclose(outputFile);
   }
-  // Perform any shutdown/cleanup.
+*/
 
   return 0;
 }
