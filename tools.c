@@ -8,28 +8,25 @@
 #include <dirent.h>
 
 char *commandes_internes[] = {
-  "cd",
-  "clr",
-  "dir",
-  "environ",
-  "echo",
-  "help",
-  "pause",
-  "quit"
-};
+    "cd",
+    "clr",
+    "dir",
+    "environ",
+    "echo",
+    "help",
+    "pause",
+    "quit"};
 
 // pointeur vers la fonction de la commande internes
-int (*commandes_internes_function[]) (char **) = {
-  &internes_cd,
-  &internes_clr,
-  &internes_dir,
-  &internes_environ,
-  &internes_echo,
-  &internes_help,
-  &internes_pause,
-  &internes_quit
-};
-
+int (*commandes_internes_function[])(char **) = {
+    &internes_cd,
+    &internes_clr,
+    &internes_dir,
+    &internes_environ,
+    &internes_echo,
+    &internes_help,
+    &internes_pause,
+    &internes_quit};
 
 // le nombre de commandes internes
 int nb_commandes_internes() { return sizeof(commandes_internes) / sizeof(char *); }
@@ -134,16 +131,16 @@ int internes_help(char **args)
         printf("\nclr - Effacer l'ecran\n");
         printf("\ndir <répertoire> - lister le contenu du répertoire <répertoire>.\n");
         printf("\nenviron - lister tous les contenus d'environnement.\n");
-        printf("\necho <comment> - afficher <comment> sur l'écran suivi d'une nouvelle ligne\n"); 
-        printf("\npause - interrompre le fonctionnement du shell jusqu'à ce que vous appuyiez sur «Entrer».\n"); 
+        printf("\necho <comment> - afficher <comment> sur l'écran suivi d'une nouvelle ligne\n");
+        printf("\npause - interrompre le fonctionnement du shell jusqu'à ce que vous appuyiez sur «Entrer».\n");
         printf("\nquit - quitter le shell.\n");
-return 1;
+        return 1;
     }
     if (strncmp(args[1], "cd", 10) == 0)
     {
         printf("\ncd <répertoire> - changer le répertoire par défaut actuel à <répertoire>.\n");
-        printf("Si l'argument <répertoire> n'est pas présent, signalez le répertoire courant.\n"); 
-        printf("Si le répertoire n'existe pas, une erreur appropriée doit être signalée.\n"); 
+        printf("Si l'argument <répertoire> n'est pas présent, signalez le répertoire courant.\n");
+        printf("Si le répertoire n'existe pas, une erreur appropriée doit être signalée.\n");
         printf("Cette commande doit également modifier la variable d'environnement PWD\n\n");
     }
     else if (strncmp(args[1], "clr", 10) == 0)
@@ -199,6 +196,7 @@ int internes_quit()
 // Execute les commandes externes et si & parent nattend pas le retour de lenfant
 int commandes_externes(char **args, int ampers)
 {
+    printf("ici\n");
     if (args != NULL)
     {
         pid_t pid;
@@ -220,6 +218,8 @@ int commandes_externes(char **args, int ampers)
         else
         {
             // Parent process
+            // Si pas de & alors on ne attend pas le retour de enfant on passe a l'invite de ligne de commande
+            // immédiatement après le lancement de ce programme
             if (ampers)
             {
                 do
@@ -274,22 +274,22 @@ char *read_line(void)
 }
 
 // Split lentree de lutilisateur en un array of pointers
-#define LSH_TOK_DELIM " \t\n"
 char **split_line(char *line)
 {
+    const char delimiters[] = " \t\n";
     int bufsize = 64, position = 0;
     char **tokens = malloc(bufsize * sizeof(char *));
     if (!tokens)
     {
-        fprintf(stderr, "lsh: allocation error\n");
+        fprintf(stderr, "tokens error\n");
         exit(1);
     }
-    char *token = strtok(line, LSH_TOK_DELIM);
-    while (token /*!=NULL*/)
+    char *token = strtok(line, delimiters);
+    while (token)
     {
         tokens[position] = token;
         position++;
-        token = strtok(NULL, LSH_TOK_DELIM);
+        token = strtok(NULL, delimiters);
     }
     tokens[position] = NULL;
     return tokens;
@@ -299,15 +299,129 @@ char **split_line(char *line)
 int check_ampersand(char **args)
 {
     int i;
-    for (i = 0; args[i] != NULL; i++){
-    if (args[i][0] == '&')
+    for (i = 0; args[i] != NULL; i++)
     {
-        return 1;
+        if (strncmp(args[i], "&", 10) == 0)
+        {
+            args[i] = NULL;
+            free(args[i]);
+            return 1;
+        }
     }
-    else
+    return 0;
+}
+
+int check_input(char **args, char **input_file)
+{
+    int i;
+    //int j;
+    for (i = 0; args[i] != NULL; i++)
     {
-        return 0;
-    }
+        if (strncmp(args[i], "<", 10) == 0)
+        {
+            printf("trouver < \n");
+            //args[i]= NULL;
+            //free(args[i]);
+            if (args[i + 1] != NULL)
+            {
+                printf("le fichier : %s\n", args[i + 1]);
+                *input_file = args[i + 1];
+                args[i + 1] = NULL;
+                free(args[i + 1]);
+            }
+            else
+            {
+                return -1;
+            }
+            args[i] = NULL;
+            free(args[i]);
+            /*
+	if(args[i+2]!=NULL){
+	for(j=i; args[j-1] != NULL; j++){
+ 
+//		args[j] = args[j+2];
 	}
+	}*/
+
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int check_output(char **args, char **output_file)
+{
+    int i;
+    //int j;
+    for (i = 0; args[i] != NULL; i++)
+    {
+        if (strncmp(args[i], ">", 10) == 0)
+        {
+            printf("trouver > \n");
+            //args[i]= NULL;
+            //free(args[i]);
+            if (args[i + 1] != NULL)
+            {
+                printf("le fichier output: %s\n", args[i + 1]);
+                *output_file = args[i + 1];
+                args[i + 1] = NULL;
+                free(args[i + 1]);
+            }
+            else
+            {
+                return -1;
+            }
+            args[i] = NULL;
+            free(args[i]);
+            /*
+        if(args[i+2]!=NULL){
+        for(j=i; args[j-1] != NULL; j++){
+
+//              args[j] = args[j+2];
+        }
+        }*/
+            printf("aurevoir\n");
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int check_doutput(char **args, char **output_file)
+{
+    int i;
+    //int j;
+    for (i = 0; args[i] != NULL; i++)
+    {
+        if (strncmp(args[i], ">>", 10) == 0)
+        {
+            printf("trouver > \n");
+            //args[i]= NULL;
+            //free(args[i]);
+            if (args[i + 1] != NULL)
+            {
+                printf("le fichier doutput : %s\n", args[i + 1]);
+                *output_file = args[i + 1];
+                args[i + 1] = NULL;
+                free(args[i + 1]);
+            }
+            else
+            {
+                return -1;
+            }
+            args[i] = NULL;
+            free(args[i]);
+            /*
+	
+        if(args[i+2]!=NULL){
+        for(j=i; args[j-1] != NULL; j++){
+
+//              args[j] = args[j+2];
+        }
+        }*/
+            printf("aurevoir deux\n");
+            return 1;
+        }
+    }
     return 0;
 }

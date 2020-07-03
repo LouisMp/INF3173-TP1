@@ -58,5 +58,10 @@ char **split_line(char *line);
 
 int check_ampersand(char **args);
 
+int check_input(char **args, char **input_file);
+
+int check_output(char **args, char **output_file);
+
+int check_doutput(char **args, char **output_file);
 
 #endif // TOOLS_H_INCLUDED
