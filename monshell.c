@@ -7,21 +7,20 @@ int main(int argc, char **argv, char *envp[])
   //char cwd[100];
   char *ligneEntre;
   char **args;
-  int status;
-  int i;
-  int ampers;
-  int input;
-  int output;
-  int doutput;
+  int status=1;
+  int i, ampers, input, output, doutput;
   FILE *inputFile = NULL;
   FILE *outputFile = NULL;
   char *input_fileName;
   char *output_fileName;
-  if (argc == 2)
-    inputFile = freopen(argv[1], "r", stdin);
 
+  if (argc == 2)inputFile = freopen(argv[1], "r", stdin);
+
+
+  // Au demarage(pas dans monshell) du monshell verifie si redirection
   for (i = 0; argv[i] != NULL; i++)
   {
+	printf("le argv : %s\n", argv[i]);
     if (argv[i][0] == '<')
     {
       inputFile = freopen(argv[i + 1], "r", stdin);
@@ -37,14 +36,11 @@ int main(int argc, char **argv, char *envp[])
         outputFile = freopen(argv[i + 1], "w", stdout);
       }
     }
-    //if (argv[i][0] == ">>"){
-    //outputFile = freopen(argv[i+1],"a",stdout);
-    //}
   }
 
   do
-  {
-    if (argc == 1)
+  { // Si redirection < alors pas besoin de print la demande dentree pour l'utilisateur
+    if (!inputFile)
     {
       char *buf = getcwd(NULL, 0);
       printf("[%s]monshell> ", buf);
@@ -53,58 +49,40 @@ int main(int argc, char **argv, char *envp[])
     args = split_line(ligneEntre);
     ampers = (check_ampersand(args) == 0);
 
-    // appel de redirection < dans le monshell
+    // Verifie si il y a une redirection < quand nous sommes dans le monshell
     input = check_input(args, &input_fileName);
-    if (input)
+    if (input) 
     {
       inputFile = freopen(input_fileName, "r", stdin);
-      ligneEntre = read_line();
-      args = split_line(ligneEntre);
-      ampers = (check_ampersand(args) == 0);
-      status = execute(args, ampers);
-      return 0;
     }
 
-    // appel redirection > dans monshell
+    // verifie si il y a une redirection > quand nous sommes dans monshell
     output = check_output(args, &output_fileName);
     if (output)
-    {
-      printf("le file name output w: %s\n", output_fileName);
+    { // Ouvrir le fichier en mode w
       outputFile = freopen(output_fileName, "w", stdout);
-      // ligneEntre = read_line();
-      //args=split_line(ligneEntre);
-      //ampers = (check_ampersand(args) == 0);
-      //  status= execute(args,ampers);
-      // return 0;
-      status = execute(args, ampers);
-      //	printf("le status %i\n",status);
-      //return status;
-      return 0;
     }
-    printf("ici ta\n");
+
+    // verifie si il y a une redirectoin >> quand nous sommes dans monshell
     doutput = check_doutput(args, &output_fileName);
 
     if (doutput)
-    {
-      printf("ok le douput %i\n", doutput);
-      printf("le file name doutputa: %s\n", output_fileName);
-      //outputFile =
-      freopen(output_fileName, "a", stdout);
-      // ligneEntre = read_line();
-      //args=split_line(ligneEntre);
-      //ampers = (check_ampersand(args) == 0);
-      //  status= execute(args,ampers);
-      // return 0;
-      status = execute(args, ampers);
-      return 0;
+    { // Ouvrir le fichier en mode a
+      outputFile = freopen(output_fileName, "a", stdout);
     }
 
-    //if(!doutput){
-    //	printf("why\n");
     status = execute(args, ampers);
-    //	}
+
+ // Si redirection vers fichier revenir stdout pour la prochaine commande entree
+ if (output || doutput)
+  {
+        freopen("/dev/tty", "w", stdout);
+  }
+
+
     free(ligneEntre);
     free(args);
+
   } while (status);
 
   if (inputFile)

@@ -36,6 +36,10 @@ int nb_commandes_internes() { return sizeof(commandes_internes) / sizeof(char *)
 // commandes internes changer le répertoire par défaut actuel à <répertoire>.
 int internes_cd(char **args)
 {
+   printf(" le args %s\n",args[2]);
+   if(strncmp(args[1],"<",4)==0){
+	printf("cest < trouver \n");
+}
     if (args[1] == NULL)
     {
         printf("Argument manquant. Signalez le répertoire courant.\n");
@@ -54,9 +58,13 @@ int internes_cd(char **args)
 }
 
 // commandes internes clr - effacer l'écran.
-int internes_clr()
+int internes_clr(char **args)
 {
+    if(args[1] == NULL){
     printf("\033[2J\033[1;1H");
+    } else {
+	printf("Ecrivez seulement 'clr'\n");
+    }
     return 1;
 }
 
@@ -95,6 +103,7 @@ int internes_dir(char **args)
 // commandes internes environ - lister tous les contenus d'environnement
 int internes_environ(char **args)
 {
+if(args[1] == NULL){
     extern char **environ;
     int i = 1;
     char *s = *environ;
@@ -103,6 +112,9 @@ int internes_environ(char **args)
         printf("%s\n", s);
         s = *(environ + i);
     }
+} else {
+printf("Ecrivez seulement 'environ'\n");
+}
     return 1;
 }
 
@@ -175,8 +187,9 @@ int internes_help(char **args)
 }
 
 // Commandes internes pause - interrompre le fonctionnement du shell jusqu'à ce que vous appuyiez sur «Entrer».
-int internes_pause()
+int internes_pause(char **args)
 {
+if(args[1] == NULL){
     char entree[60];
     do
     {
@@ -184,19 +197,26 @@ int internes_pause()
         fgets(entree, 60, stdin);
         //c = getchar();
     } while (strncmp(entree, "\n", 1) != 0);
+} else {
+printf("Ecrivez seulement 'pause'\n");
+}
     return 1;
 }
 
 // Commandes internes quit - quitter le shell.
-int internes_quit()
+int internes_quit(char **args)
 {
+if(args[1] == NULL){
     return 0;
+} else {
+printf("Ecrivez seulement 'quit'\n");
+return 1;
+}
 }
 
 // Execute les commandes externes et si & parent nattend pas le retour de lenfant
 int commandes_externes(char **args, int ampers)
 {
-    printf("ici\n");
     if (args != NULL)
     {
         pid_t pid;
@@ -266,7 +286,8 @@ char *read_line(void)
         }
         else
         {
-            perror("readline");
+	printf("la line %s\n", line);
+            perror("readline test");
             exit(1);
         }
     }
@@ -319,12 +340,10 @@ int check_input(char **args, char **input_file)
     {
         if (strncmp(args[i], "<", 10) == 0)
         {
-            printf("trouver < \n");
             //args[i]= NULL;
             //free(args[i]);
             if (args[i + 1] != NULL)
             {
-                printf("le fichier : %s\n", args[i + 1]);
                 *input_file = args[i + 1];
                 args[i + 1] = NULL;
                 free(args[i + 1]);
@@ -335,14 +354,6 @@ int check_input(char **args, char **input_file)
             }
             args[i] = NULL;
             free(args[i]);
-            /*
-	if(args[i+2]!=NULL){
-	for(j=i; args[j-1] != NULL; j++){
- 
-//		args[j] = args[j+2];
-	}
-	}*/
-
             return 1;
         }
     }
@@ -357,12 +368,8 @@ int check_output(char **args, char **output_file)
     {
         if (strncmp(args[i], ">", 10) == 0)
         {
-            printf("trouver > \n");
-            //args[i]= NULL;
-            //free(args[i]);
             if (args[i + 1] != NULL)
             {
-                printf("le fichier output: %s\n", args[i + 1]);
                 *output_file = args[i + 1];
                 args[i + 1] = NULL;
                 free(args[i + 1]);
@@ -373,14 +380,6 @@ int check_output(char **args, char **output_file)
             }
             args[i] = NULL;
             free(args[i]);
-            /*
-        if(args[i+2]!=NULL){
-        for(j=i; args[j-1] != NULL; j++){
-
-//              args[j] = args[j+2];
-        }
-        }*/
-            printf("aurevoir\n");
             return 1;
         }
     }
@@ -390,17 +389,12 @@ int check_output(char **args, char **output_file)
 int check_doutput(char **args, char **output_file)
 {
     int i;
-    //int j;
     for (i = 0; args[i] != NULL; i++)
     {
         if (strncmp(args[i], ">>", 10) == 0)
         {
-            printf("trouver > \n");
-            //args[i]= NULL;
-            //free(args[i]);
             if (args[i + 1] != NULL)
             {
-                printf("le fichier doutput : %s\n", args[i + 1]);
                 *output_file = args[i + 1];
                 args[i + 1] = NULL;
                 free(args[i + 1]);
@@ -411,15 +405,7 @@ int check_doutput(char **args, char **output_file)
             }
             args[i] = NULL;
             free(args[i]);
-            /*
-	
-        if(args[i+2]!=NULL){
-        for(j=i; args[j-1] != NULL; j++){
 
-//              args[j] = args[j+2];
-        }
-        }*/
-            printf("aurevoir deux\n");
             return 1;
         }
     }

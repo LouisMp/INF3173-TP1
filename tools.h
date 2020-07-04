@@ -14,12 +14,12 @@ extern char getline();
 // Declarations des fonctions internes
 int internes_cd(char **args);
 int internes_help(char **args);
-int internes_quit();
+int internes_quit(char **args);
 int internes_dir(char **args);
-int internes_clr();
+int internes_clr(char **args);
 int internes_echo(char **args);
 int internes_environ(char **args);
-int internes_pause();
+int internes_pause(char **args);
 /*
 char *commandes_internes[] = {
   "cd",
