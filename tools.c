@@ -68,7 +68,7 @@ void monshell_cmdline()
     char *line;
     Arguments *argv;
     Redirections r = {false, "", false, "", false, "", false};
-    int code = EXIT_SUCCESS;
+    int code = EXIT_FAILURE;
 
     do
     {
@@ -325,9 +325,9 @@ int run_external(char **args, Redirections *r)
         if (r->background == false)
         {
             wait(&child_status);
-            return child_status;
+            return 1;
         }
     }
 
-    return EXIT_SUCCESS;
+    return 1;
 }
