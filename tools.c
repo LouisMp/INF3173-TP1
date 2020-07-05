@@ -72,7 +72,7 @@ void monshell_cmdline()
 
     do
     {
-        fprintf(stdout, "[monshell]> ");
+        printf("[monshell]> ");
         line = read_line();
         argv = parse_args(line);
         if (handle_redirection(argv, &r) != -1)
@@ -93,7 +93,7 @@ void monshell_batchfile(FILE *file)
 
     while (getline(&line, &len, file) != -1)
     {
-        fprintf(stdout, "[monshell]> ");
+        printf("[monshell]> ");
 
         argv = parse_args(line);
         if (handle_redirection(argv, &r) != -1)
@@ -186,7 +186,7 @@ int handle_redirection(Arguments *argv, Redirections *r)
             }
             else
             {
-                fprintf(stdout, "Argument manquant dans la redirection'\n");
+                fprintf(stderr, "Argument manquant dans la redirection'\n");
                 return -1;
             }
 
@@ -211,7 +211,7 @@ int handle_redirection(Arguments *argv, Redirections *r)
             }
             else
             {
-                fprintf(stdout, "Argument manquant dans la redirection'\n");
+                fprintf(stderr, "Argument manquant dans la redirection'\n");
                 return -1;
             }
 
@@ -236,7 +236,7 @@ int handle_redirection(Arguments *argv, Redirections *r)
             }
             else
             {
-                fprintf(stdout, "Argument manquant dans la redirection'\n");
+                fprintf(stderr, "Argument manquant dans la redirection'\n");
                 return -1;
             }
 
@@ -260,7 +260,7 @@ int handle_redirection(Arguments *argv, Redirections *r)
             }
             else
             {
-                fprintf(stdout, "Argument à la mauvaise place dans le traitement en background'\n");
+                fprintf(stderr, "Argument à la mauvaise place dans le traitement en background'\n");
                 return -1;
             }
 
