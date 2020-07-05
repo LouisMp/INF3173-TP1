@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "tools.h"
 
+char **environnement;
+
 int main(int argc, char *argv[], char **envp)
 {
     environnement = envp;

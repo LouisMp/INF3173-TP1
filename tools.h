@@ -36,14 +36,12 @@ int hlp(char **args, Redirections *r);
 int paus(char **args, Redirections *r);
 int quit(char **args, Redirections *r);
 
-char *internal_command_list[INTERNAL_FUNCTION_NUMBER] = {"cd", "clr", "dir", "environ", "echo", "help", "pause", "quit"};
-int (*internal_functions[INTERNAL_FUNCTION_NUMBER])(char **args, Redirections *r) = {&cd, &clr, &dir, &env, &echo, &hlp, &paus, &quit};
 void monshell_cmdline();
 void monshell_batchfile(FILE *file);
 
 char *read_line();
 Arguments *parse_args(char *args);
-void handle_redirection(Arguments *redirections, Redirections* r);
+int handle_redirection(Arguments *argv, Redirections* r);
 
 int run(char **args, Redirections *r);
 int run_external(char **args, Redirections *r);

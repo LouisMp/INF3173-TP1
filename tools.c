@@ -25,7 +25,19 @@ int dir(char **args, Redirections *r)
 
 int env(char **args, Redirections *r)
 {
-    return 0;
+    if (args[1] == NULL)
+    {
+        for (char **env = environnement; *env != 0; env++)
+        {
+            char *thisEnv = *env;
+            printf("%s\n", thisEnv);
+        }
+    }
+    else
+    {
+        printf("Ecrivez seulement 'environ'\n");
+    }
+    return 1;
 }
 
 int echo(char **args, Redirections *r)
@@ -48,20 +60,23 @@ int quit(char **args, Redirections *r)
     return 0;
 }
 
+char *internal_command_list[INTERNAL_FUNCTION_NUMBER] = {"cd", "clr", "dir", "environ", "echo", "help", "pause", "quit"};
+int (*internal_functions[INTERNAL_FUNCTION_NUMBER])(char **args, Redirections *r) = {&cd, &clr, &dir, &env, &echo, &hlp, &paus, &quit};
+
 void monshell_cmdline()
 {
     char *line;
     Arguments *argv;
     Redirections r = {false, "", false, "", false, "", false};
-    int code;
+    int code = EXIT_SUCCESS;
 
     do
     {
         fprintf(stdout, "[monshell]> ");
         line = read_line();
         argv = parse_args(line);
-        handle_redirection(argv, &r);
-        code = run(argv->args, &r);
+        if (handle_redirection(argv, &r) != -1)
+            code = run(argv->args, &r);
 
         free(line);
         free(argv->args);
@@ -81,8 +96,8 @@ void monshell_batchfile(FILE *file)
         fprintf(stdout, "[monshell]> ");
 
         argv = parse_args(line);
-        handle_redirection(argv, &r);
-        run(argv->args, &r);
+        if (handle_redirection(argv, &r) != -1)
+            run(argv->args, &r);
 
         free(argv->args);
     }
@@ -110,13 +125,13 @@ char *read_line()
 
 Arguments *parse_args(char *args)
 {
-    Arguments *p = NULL;
+    Arguments *p = malloc(sizeof(Arguments));
     char *delim = " \t\r\n\a";
     int taille = DEFAUT_ARG_NUMBER, position = 0;
     char **argvv = malloc(taille * sizeof(char *));
     char *token, **backup;
 
-    if (!argvv)
+    if (!argvv || !p)
     {
         fprintf(stderr, "monshell--erreur d'allocation\n");
         exit(EXIT_FAILURE);
@@ -149,51 +164,136 @@ Arguments *parse_args(char *args)
     return p;
 }
 
-void handle_redirection(Arguments *redirections, Redirections* r) {
+int handle_redirection(Arguments *argv, Redirections *r)
+{
     int i;
     int j;
 
-      for(i = 0; args[i] != NULL; i++) {
+    for (i = 0; i < argv->argc; i++)
+    {
 
         // Look for the >
-        if(args[i][0] == '>') {
-          //free(args[i]);
+        if (argv->args[i][0] == '>' && argv->args[i][1] == '\0')
+        {
+            //free(args[i]);
 
-          // Get the filename 
-          if(args[i+1] != NULL) {
-        *output_filename = args[i+1];
-          } else {
-        return -1;
-          }
+            // Get the filename
+            if (argv->args[i + 1] != NULL)
+            {
+                r->out_filename = argv->args[i + 1];
+                r->out = true;
+                argv->argc = argv->argc - 2;
+            }
+            else
+            {
+                fprintf(stdout, "Argument manquant dans la redirection'\n");
+                return -1;
+            }
 
-          // Adjust the rest of the arguments in the array
-          for(j = i; args[j-1] != NULL; j++) {
-        args[j] = args[j+2];
-          }
-
-          return 1;
+            // Adjust the rest of the arguments in the array
+            for (j = i; argv->args[j - 1] != NULL; j++)
+            {
+                argv->args[j] = argv->args[j + 2];
+            }
         }
-      }
 
-      return 0;
+        // Look for the <
+        else if (argv->args[i][0] == '<' && argv->args[i][1] == '\0')
+        {
+            //free(args[i]);
+
+            // Get the filename
+            if (argv->args[i + 1] != NULL)
+            {
+                r->in_filename = argv->args[i + 1];
+                r->in = true;
+                argv->argc = argv->argc - 2;
+            }
+            else
+            {
+                fprintf(stdout, "Argument manquant dans la redirection'\n");
+                return -1;
+            }
+
+            // Adjust the rest of the arguments in the array
+            for (j = i; argv->args[j - 1] != NULL; j++)
+            {
+                argv->args[j] = argv->args[j + 2];
+            }
+        }
+
+        // Look for the >>
+        else if (argv->args[i][0] == '>' && argv->args[i][1] == '>')
+        {
+            //free(args[i]);
+
+            // Get the filename
+            if (argv->args[i + 1] != NULL)
+            {
+                r->a_filename = argv->args[i + 1];
+                r->append = true;
+                argv->argc = argv->argc - 2;
+            }
+            else
+            {
+                fprintf(stdout, "Argument manquant dans la redirection'\n");
+                return -1;
+            }
+
+            // Adjust the rest of the arguments in the array
+            for (j = i; argv->args[j - 1] != NULL; j++)
+            {
+                argv->args[j] = argv->args[j + 2];
+            }
+        }
+
+        // Look for the &
+        else if (argv->args[i][0] == '&' && argv->args[i][1] == '\0')
+        {
+            //free(args[i]);
+
+            // Check the right place
+            if (i == argv->argc - 1)
+            {
+                r->background = true;
+                argv->argc = argv->argc - 1;
+            }
+            else
+            {
+                fprintf(stdout, "Argument à la mauvaise place dans le traitement en background'\n");
+                return -1;
+            }
+
+            // Adjust the rest of the arguments in the array
+            for (j = i; argv->args[j - 1] != NULL; j++)
+            {
+                argv->args[j] = argv->args[j + 1];
+            }
+        }
+    }
+
+    return 0;
 }
 
 int run(char **args, Redirections *r)
 {
     int i;
 
-  if (args[0] == NULL) {
-    // Rien entré
-    return 1;
-  }
-
-  for (i = 0; i < INTERNAL_FUNCTION_NUMBER; i++) {
-    if (strcmp(args[0], internal_command_list[i]) == 0) {
-      return (*internal_functions[i])(args, r);
+    if (args[0] == NULL)
+    {
+        // Rien entré
+        return 1;
     }
-  }
 
-  return run_external(args, r);
+    for (i = 0; i < INTERNAL_FUNCTION_NUMBER; i++)
+    {
+        if (strcmp(args[0], internal_command_list[i]) == 0)
+        {
+            return (*internal_functions[i])(args, r);
+        }
+    }
+
+    return run_external(args, r);
 }
 
 int run_external(char **args, Redirections *r)
@@ -208,9 +308,12 @@ int run_external(char **args, Redirections *r)
     }
     else if (pid == 0)
     {
-        if(r->in==true) freopen(r->in_filename, "r", stdin);
-        if(r->out==true) freopen(r->out_filename,"w",stdout);
-        if (r->append==true) freopen(r->a_filename, "a", stdout);
+        if (r->in == true)
+            freopen(r->in_filename, "r", stdin);
+        if (r->out == true)
+            freopen(r->out_filename, "w", stdout);
+        if (r->append == true)
+            freopen(r->a_filename, "a", stdout);
         // Processus fils
         execvp(args[0], args);
         perror("Echec d'exec");
