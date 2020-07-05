@@ -7,6 +7,7 @@
 #include <string.h>
 #include <dirent.h>
 
+// Liste des noms des commandes internes
 char *commandes_internes[] = {
     "cd",
     "clr",
@@ -36,23 +37,16 @@ int nb_commandes_internes() { return sizeof(commandes_internes) / sizeof(char *)
 // commandes internes changer le répertoire par défaut actuel à <répertoire>.
 int internes_cd(char **args)
 {
-   printf(" le args %s\n",args[2]);
-   if(strncmp(args[1],"<",4)==0){
-	printf("cest < trouver \n");
-}
-    if (args[1] == NULL)
+
+    if (!args[1])
     {
-        printf("Argument manquant. Signalez le répertoire courant.\n");
-        char cwd[1024];
-        getcwd(cwd, sizeof(cwd));
-        printf("Dir: %s\n", cwd);
+        printf("Argument manquant. Le répertoire courant a ete signale.\n");
+        args[1] = ".";
     }
-    else
+
+    if (chdir(args[1]) != 0)
     {
-        if (chdir(args[1]) != 0)
-        {
-            perror("no such directory\n");
-        }
+        perror("no such directory\n");
     }
     return 1;
 }
@@ -60,10 +54,13 @@ int internes_cd(char **args)
 // commandes internes clr - effacer l'écran.
 int internes_clr(char **args)
 {
-    if(args[1] == NULL){
-    printf("\033[2J\033[1;1H");
-    } else {
-	printf("Ecrivez seulement 'clr'\n");
+    if (args[1] == NULL)
+    {
+        printf("\033[2J\033[1;1H");
+    }
+    else
+    {
+        printf("Ecrivez seulement 'clr'\n");
     }
     return 1;
 }
@@ -88,7 +85,7 @@ int internes_dir(char **args)
     }
     if (pDir == NULL)
     {
-        printf("Cannot open directory '%s'\n", args[1]);
+        printf("Impossible d'ouvrire le repertoire\n");
         return 1;
     }
 
@@ -103,18 +100,21 @@ int internes_dir(char **args)
 // commandes internes environ - lister tous les contenus d'environnement
 int internes_environ(char **args)
 {
-if(args[1] == NULL){
-    extern char **environ;
-    int i = 1;
-    char *s = *environ;
-    for (; s; i++)
+    if (args[1] == NULL)
     {
-        printf("%s\n", s);
-        s = *(environ + i);
+        extern char **environ;
+        int i = 1;
+        char *s = *environ;
+        for (; s; i++)
+        {
+            printf("%s\n", s);
+            s = *(environ + i);
+        }
     }
-} else {
-printf("Ecrivez seulement 'environ'\n");
-}
+    else
+    {
+        printf("Ecrivez seulement 'environ'\n");
+    }
     return 1;
 }
 
@@ -189,29 +189,35 @@ int internes_help(char **args)
 // Commandes internes pause - interrompre le fonctionnement du shell jusqu'à ce que vous appuyiez sur «Entrer».
 int internes_pause(char **args)
 {
-if(args[1] == NULL){
-    char entree[60];
-    do
+    if (args[1] == NULL)
     {
-        printf("Appuyer SEULEMENT sur Entrer pour continuer ");
-        fgets(entree, 60, stdin);
-        //c = getchar();
-    } while (strncmp(entree, "\n", 1) != 0);
-} else {
-printf("Ecrivez seulement 'pause'\n");
-}
+        char entree[60];
+        do
+        {
+            printf("Appuyer SEULEMENT sur Entrer pour continuer ");
+            fgets(entree, 60, stdin);
+            //c = getchar();
+        } while (strncmp(entree, "\n", 1) != 0);
+    }
+    else
+    {
+        printf("Ecrivez seulement 'pause'\n");
+    }
     return 1;
 }
 
 // Commandes internes quit - quitter le shell.
 int internes_quit(char **args)
 {
-if(args[1] == NULL){
-    return 0;
-} else {
-printf("Ecrivez seulement 'quit'\n");
-return 1;
-}
+    if (args[1] == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        printf("Ecrivez seulement 'quit'\n");
+        return 1;
+    }
 }
 
 // Execute les commandes externes et si & parent nattend pas le retour de lenfant
@@ -242,10 +248,14 @@ int commandes_externes(char **args, int ampers)
             // immédiatement après le lancement de ce programme
             if (ampers)
             {
-                do
+                do // tant que l'enfant na pas quitter normalement
                 {
                     waitpid(pid, &resultat, 0);
                 } while (!WIFEXITED(resultat) && !WIFSIGNALED(resultat));
+            }
+            else
+            {
+                printf("Execution en arriere plan, shell revenu a l'invite de ligne de commande immédiatement après le lancement de ce programme\n");
             }
         }
     }
@@ -282,12 +292,11 @@ char *read_line(void)
     {
         if (feof(stdin))
         {
-            exit(0); // We recieved an EOF
+            exit(0);
         }
         else
         {
-	printf("la line %s\n", line);
-            perror("readline test");
+            perror("readline");
             exit(1);
         }
     }
@@ -295,7 +304,7 @@ char *read_line(void)
 }
 
 // Split lentree de lutilisateur en un array of pointers
-char **split_line(char *line)
+char **parse_line(char *line)
 {
     const char delimiters[] = " \t\n";
     int bufsize = 64, position = 0;
@@ -316,7 +325,7 @@ char **split_line(char *line)
     return tokens;
 }
 
-// Verifie si il y a & dans la commandes entree
+// Verifie si il y a & dans la ligne entree
 int check_ampersand(char **args)
 {
     int i;
@@ -332,16 +341,14 @@ int check_ampersand(char **args)
     return 0;
 }
 
+// verifie si il y a < dans la ligne entree
 int check_input(char **args, char **input_file)
 {
     int i;
-    //int j;
     for (i = 0; args[i] != NULL; i++)
     {
         if (strncmp(args[i], "<", 10) == 0)
         {
-            //args[i]= NULL;
-            //free(args[i]);
             if (args[i + 1] != NULL)
             {
                 *input_file = args[i + 1];
@@ -360,10 +367,10 @@ int check_input(char **args, char **input_file)
     return 0;
 }
 
+// Verifie si il y a > dans la ligne entree
 int check_output(char **args, char **output_file)
 {
     int i;
-    //int j;
     for (i = 0; args[i] != NULL; i++)
     {
         if (strncmp(args[i], ">", 10) == 0)
@@ -386,6 +393,7 @@ int check_output(char **args, char **output_file)
     return 0;
 }
 
+// Verifie si il y a >> dans la ligne entree
 int check_doutput(char **args, char **output_file)
 {
     int i;

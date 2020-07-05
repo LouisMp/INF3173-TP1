@@ -8,7 +8,6 @@
 #include <string.h>
 #include <dirent.h>
 
-
 extern char getline();
 
 // Declarations des fonctions internes
@@ -20,30 +19,7 @@ int internes_clr(char **args);
 int internes_echo(char **args);
 int internes_environ(char **args);
 int internes_pause(char **args);
-/*
-char *commandes_internes[] = {
-  "cd",
-  "clr",
-  "dir",
-  "environ",
-  "echo",
-  "help",
-  "pause",
-  "quit"
-};
 
-// pointeur vers la fonction de la commande internes
-int (*commandes_internes_function[]) (char **) = {
-  &internes_cd,
-  &internes_clr,
-  &internes_dir,
-  &internes_environ,
-  &internes_echo,
-  &internes_help,
-  &internes_pause,
-  &internes_quit
-};
-*/
 int nb_commandes_internes();
 
 int internes_cd(char **args);
@@ -54,7 +30,7 @@ int execute(char **args, int ampers);
 
 char *read_line(void);
 
-char **split_line(char *line);
+char **parse_line(char *line);
 
 int check_ampersand(char **args);
 
